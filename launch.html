@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch QR Attendance System</title>
+    <style>
+        body {
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: clamp(1.5rem, 5vw, 3.5rem);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 { margin-bottom: 10px; font-size: 2.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        p { margin-bottom: 30px; opacity: 0.9; font-weight: 600; color: #00f2fe; }
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        .btn {
+            display: block;
+            padding: 16px 30px;
+            background: #fff;
+            color: #1a1a2e;
+            text-decoration: none;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+        }
+        .btn-ip {
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            filter: brightness(1.1);
+        }
+        .note {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        code { background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; color: #00f2fe; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>QR Attendance</h1>
+        <p>XAMPP / Apache Portal</p>
+        
+        <div class="btn-group">
+            <a href="index.html" class="btn">Launch System (Direct)</a>
+            <a href="http://localhost/QR_ATTENDANCE_SYSTEM_FINAL/index.html" class="btn">Launch via Localhost</a>
+        </div>
+
+        <div class="note">
+            <strong>XAMPP Setup (Optional but Recommended):</strong><br>
+            1. Ensure this folder is inside <code>C:\xampp\htdocs\</code><br>
+            2. Start <strong>Apache</strong> in the XAMPP Control Panel.<br>
+            3. Open <code>http://localhost/QR_ATTENDANCE_SYSTEM_FINAL/index.html</code><br>
+            4. <strong>Tip:</strong> Use your computer's IP address (e.g., <code>192.168.1.x</code>) to access it from mobile devices on the same Wi-Fi.
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | QR Attendance System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="global.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-init.js?v=5"></script>
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .stat-card p {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--dark);
+            margin: 0;
+        }
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(255,255,255,0.8);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .filter-bar select {
+            flex: 1;
+            min-width: 150px;
+            margin: 0;
+        }
+        .action-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .action-group .btn {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <header class="main-header" style="text-align: left; margin-bottom: 3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+            <div>
+                <h1 style="font-size: 2.5rem; margin: 0;">Admin <span class="title-gradient">Portal</span></h1>
+                <p style="margin: 5px 0 0; opacity: 0.8;">Manage students and monitor attendance</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-danger" style="width: auto; padding: 10px 25px;" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Registered</h3>
+            <p id="totalStudents">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Today's Present</h3>
+            <p id="todayPresent">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>Today's Late</h3>
+            <p id="todayLate" style="color: var(--danger);">0</p>
+        </div>
+    </div>
+
+    <section class="glass-card" style="margin-bottom: 30px; padding: 30px;">
+        <h3 style="margin-bottom: 20px; font-size: 1.2rem;">Session Management</h3>
+        <div style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 150px;">
+                <label style="font-weight: 800; font-size: 12px; color: #666;">START TIME (TIME-IN)</label>
+                <input type="time" id="startTime">
+            </div>
+            <div style="flex: 1; min-width: 150px;">
+                <label style="font-weight: 800; font-size: 12px; color: #666;">END TIME (TIME-OUT)</label>
+                <input type="time" id="endTime">
+            </div>
+            <button class="btn btn-primary" style="width: auto; margin: 10px 0; padding: 14px 30px;" onclick="saveSession()">Update Parameters</button>
+        </div>
+        <p style="font-size: 12px; color: #888; margin-top: 15px; font-weight: 600;">* Students scanning 3 hours after start time will be marked as LATE.</p>
+    </section>
+
+    <div class="action-group">
+        <a href="scan_qr.html" class="btn btn-primary">Launch Scanner</a>
+        <a href="attendance_report.html" class="btn btn-secondary">Attendance Report</a>
+        <button class="btn" style="background: #2e7d32; color: white;" onclick="exportToCSV()">Export Students</button>
+        <button class="btn btn-danger" onclick="deleteAllStudents()">Wipe All Records</button>
+    </div>
+
+    <div class="filter-bar">
+        <select id="filterCourse" onchange="updateFilters(); showStudents()">
+            <option value="">All Courses</option>
+            <option value="ACT">ACT</option>
+            <option value="BSIS">BSIS</option>
+            <option value="BEPED">BEPED</option>
+        </select>
+        <select id="filterYear" onchange="showStudents()">
+            <option value="">All Years</option>
+        </select>
+        <select id="filterSection" onchange="showStudents()">
+            <option value="">All Sections</option>
+        </select>
+    </div>
+
+    <div class="table-container">
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>Profile</th>
+                    <th>Full Name</th>
+                    <th>Course/Year</th>
+                    <th>Section</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loaded via JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+let allStudents = [];
+
+async function loadInitialData() {
+    // Load Settings
+    const settings = await FB.get('settings');
+    if (settings) {
+        document.getElementById("startTime").value = settings.sessionStartTime || "";
+        document.getElementById("endTime").value = settings.sessionEndTime || "";
+    }
+
+    // Watch Students & Attendance
+    FB.watch('students', (data) => {
+        allStudents = data ? Object.values(data) : [];
+        updateFilters();
+        showStudents();
+    });
+
+    FB.watch('attendance/' + getTodayDate(), (data) => {
+        const att = data ? Object.values(data) : [];
+        document.getElementById("todayPresent").innerText = att.filter(a => a.status === "PRESENT").length;
+        document.getElementById("todayLate").innerText = att.filter(a => a.status === "LATE").length;
+    });
+}
+
+function updateFilters() {
+    const course = document.getElementById("filterCourse").value;
+    const yearSelect = document.getElementById("filterYear");
+    const sectionSelect = document.getElementById("filterSection");
+    
+    // Update Years
+    const currentYear = yearSelect.value;
+    yearSelect.innerHTML = '<option value="">All Years</option>';
+    if (course === "ACT") {
+        yearSelect.innerHTML += '<option value="1">1st Year</option><option value="2">2nd Year</option>';
+    } else if (course === "BSIS") {
+        yearSelect.innerHTML += '<option value="3">3rd Year</option><option value="4">4th Year</option>';
+    } else if (course === "BEPED") {
+        yearSelect.innerHTML += '<option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option>';
+    }
+    yearSelect.value = allStudents.some(s => s.year === currentYear) ? currentYear : "";
+
+    // Update Sections
+    const sections = new Set();
+    allStudents.forEach(s => {
+        if (!course || s.course === course) sections.add(s.section);
+    });
+    const currentSection = sectionSelect.value;
+    sectionSelect.innerHTML = '<option value="">All Sections</option>';
+    Array.from(sections).sort().forEach(sec => {
+        sectionSelect.innerHTML += `<option value="${sec}">${sec}</option>`;
+    });
+    sectionSelect.value = currentSection;
+}
+
+function showStudents() {
+    const tableBody = document.querySelector("#studentTable tbody");
+    const fCourse = document.getElementById("filterCourse").value;
+    const fYear = document.getElementById("filterYear").value;
+    const fSection = document.getElementById("filterSection").value;
+
+    tableBody.innerHTML = "";
+    document.getElementById("totalStudents").innerText = allStudents.length;
+
+    const filtered = allStudents.filter(s => {
+        return (!fCourse || s.course === fCourse) &&
+               (!fYear || s.year === fYear) &&
+               (!fSection || s.section === fSection);
+    });
+
+    filtered.forEach(s => {
+        const row = tableBody.insertRow();
+        row.innerHTML = `
+            <td><img src="${s.photo}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);"></td>
+            <td style="font-weight: 800;">${s.name}</td>
+            <td>${s.course} - ${s.year}yr</td>
+            <td>Section ${s.section}</td>
+            <td>${s.phone}</td>
+            <td>
+                <button class="btn btn-danger" style="padding: 5px 12px; font-size: 11px; width: auto;" onclick="deleteStudent('${s.id}')">Delete</button>
+            </td>
+        `;
+    });
+}
+
+async function saveSession() {
+    const start = document.getElementById("startTime").value;
+    const end = document.getElementById("endTime").value;
+    if (!start || !end) return alert("Please set both times!");
+    
+    await FB.set('settings', { sessionStartTime: start, sessionEndTime: end });
+    alert("✅ Settings Updated!");
+}
+
+async function deleteStudent(id) {
+    if (!confirm("Remove this student permanently?")) return;
+    const data = await FB.get('students');
+    for (let key in data) {
+        if (data[key].id === id) {
+            await FB.remove(`students/${key}`);
+            break;
+        }
+    }
+}
+
+async function deleteAllStudents() {
+    if (confirm("⚠️ WIPE EVERYTHING? This cannot be undone.")) {
+        await FB.remove('students');
+        await FB.remove('attendance');
+        alert("Database Cleared.");
+    }
+}
+
+function exportToCSV() {
+    if (allStudents.length === 0) return alert("No data to export!");
+    let csv = "ID,Name,Course,Year,Section,Phone,RegisteredDate\n";
+    allStudents.forEach(s => {
+        csv += `"${s.id}","${s.name}","${s.course}","${s.year}","${s.section}","${s.phone}","${s.registeredDate}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `Student_List_${getTodayDate()}.csv`);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function logout() {
+    window.location = "logout.html";
+}
+
+loadInitialData();
+</script>
+</body>
+</html>

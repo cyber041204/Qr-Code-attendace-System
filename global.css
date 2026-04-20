@@ -1,0 +1,172 @@
+/* Global CSS for QR Attendance System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;700;900&display=swap');
+
+:root {
+    --primary: #4facfe;
+    --secondary: #00f2fe;
+    --accent: #c471ed;
+    --danger: #ff4b2b;
+    --warning: #f57c00;
+    --success: #00c853;
+    --dark: #1a1a2e;
+    --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    font-family: 'Outfit', 'Inter', 'Segoe UI', sans-serif;
+    margin: 0;
+    background: var(--bg-gradient);
+    background-image: url('1.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: var(--dark);
+    line-height: 1.6;
+}
+
+/* Glass Container */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    box-sizing: border-box;
+}
+
+/* Typography */
+h1, h2, h3 {
+    margin-top: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 900;
+}
+
+.title-gradient {
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Inputs & Selects */
+input, select {
+    width: 100%;
+    padding: 14px 18px;
+    margin: 10px 0;
+    border: 2px solid #eee;
+    border-radius: 14px;
+    outline: none;
+    background: #fff;
+    color: var(--dark);
+    font-size: 16px;
+    font-weight: 600;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(79, 172, 254, 0.2);
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    width: 100%;
+    padding: 16px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    background: linear-gradient(to right, var(--secondary), var(--primary));
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(to right, #12c2e9, #c471ed);
+    color: #fff;
+}
+
+.btn-danger {
+    background: linear-gradient(to right, #ff416c, #ff4b2b);
+    color: #fff;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Tables */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 15px;
+    background: #fff;
+    margin-top: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    padding: 15px;
+    background: #f8f9fa;
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #666;
+    border-bottom: 2px solid #eee;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Layout Utilities */
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    flex-direction: column;
+}
+
+.main-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    width: 100%;
+    color: #fff;
+}
+
+.main-header h1 {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
